@@ -4,7 +4,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
-	SuperRoutes "github.com/santduv/gyma-api/internal/super/interfaces/handler/routes"
+	"github.com/santduv/gyma-api/internal/database"
+	UserRoutes "github.com/santduv/gyma-api/internal/modules/users/infrastructure/routes"
 )
 
 func CreateApp() *fiber.App {
@@ -20,8 +21,11 @@ func CreateApp() *fiber.App {
 
 	router := app.Group("/api")
 
+	// Connect to MongoDB
+	database.ConnectToMongo()
+
 	// Register routes
-	SuperRoutes.SetupRoutes(router.Group("/v1/supers"))
+	UserRoutes.SetupRoutes(router.Group("/v1/users"))
 
 	return app
 }
