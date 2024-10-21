@@ -25,3 +25,15 @@ func (f *UserFactory) NewUserEntityFromDto(dto *dto.CreateUserDto) *entities.Use
 		DeletedAt: nil,
 	}
 }
+
+func (f *UserFactory) UserDtoFromEntity(user *entities.User) *dto.UserDto {
+	return &dto.UserDto{
+		ID:        user.ID.Hex(),
+		Email:     user.Email,
+		Nickname:  user.Nickname,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		CreatedAt: user.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: user.UpdatedAt.Format(time.RFC3339),
+	}
+}

@@ -28,9 +28,7 @@ func (h *UserHandler) CreateUser(ctx *fiber.Ctx) error {
 	user, err := h.createUserUseCase.Execute(ctx.Context(), &createUserDto)
 
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
+		return ctx.Status(err.StatusCode).JSON(err)
 	}
 
 	return ctx.Status(fiber.StatusCreated).JSON(user)
