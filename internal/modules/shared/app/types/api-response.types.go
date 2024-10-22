@@ -1,8 +1,8 @@
 package types
 
 type ApiResponse struct {
-	Status  string      `json:"status"`
+	Status  int         `json:"status"`
 	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
-	Error   interface{} `json:"error"`
+	Data    interface{} `json:"data,omitempty"`
+	Error   interface{} `json:"error,omitempty"`
 }

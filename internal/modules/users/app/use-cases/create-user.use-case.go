@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 
+	"github.com/santduv/gyma-api/internal/modules/shared/app/helpers"
 	httpErrors "github.com/santduv/gyma-api/internal/modules/shared/app/http-errors"
 	"github.com/santduv/gyma-api/internal/modules/shared/app/types"
 	"github.com/santduv/gyma-api/internal/modules/users/app/dto"
 	"github.com/santduv/gyma-api/internal/modules/users/app/factories"
-	"github.com/santduv/gyma-api/internal/modules/users/domain/entities"
 	"github.com/santduv/gyma-api/internal/modules/users/domain/ports"
 	"github.com/santduv/gyma-api/pkg/utils"
 )
@@ -25,17 +25,19 @@ func NewCreateUserUseCase(userRepository ports.UserRepository) *CreateUserUseCas
 	}
 }
 
-func (u *CreateUserUseCase) Execute(ctx context.Context, dto *dto.CreateUserDto) (*entities.User, *httpErrors.HttpError) {
+func (u *CreateUserUseCase) Execute(ctx context.Context, dto *dto.CreateUserDto) (*types.ApiResponse, *httpErrors.HttpError) {
 	hashedPassword, err := utils.HashPassword(dto.Password)
 
 	if err != nil {
-		panic(err)
+		return nil, httpErrors.NewInternalServerError("failed to hash password", &types.JsonMap{
+			"error": err.Error(),
+		})
 	}
 
 	err = u.validateEmailExists(dto.Email)
 
 	if err != nil {
-		return nil, httpErrors.NewConflictError(err.Error())
+		return nil, httpErrors.NewConflictError("email already exists")
 	}
 
 	dto.Password = hashedPassword
@@ -49,7 +51,9 @@ func (u *CreateUserUseCase) Execute(ctx context.Context, dto *dto.CreateUserDto)
 		})
 	}
 
-	return user, nil
+	res := helpers.CreatedResponse("user created", u.userFactory.UserDtoFromEntity(user))
+
+	return res, nil
 }
 
 func (u *CreateUserUseCase) validateEmailExists(email string) error {
@@ -58,7 +62,7 @@ func (u *CreateUserUseCase) validateEmailExists(email string) error {
 	})
 
 	if err != nil {
-		return err
+		return helpers.ManageMongoNoDocumentsError(err)
 	}
 
 	if user != nil {

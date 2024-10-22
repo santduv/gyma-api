@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
@@ -21,12 +18,8 @@ func errorHandler(c *fiber.Ctx) error {
 		return nil
 	}
 
-	fmt.Println(err)
-
-	if errors.Is(err, &httpErrors.HttpError{}) {
-		errProps := err.(*httpErrors.HttpError)
-
-		return c.Status(errProps.StatusCode).JSON(errProps)
+	if httpErr, ok := err.(*httpErrors.HttpError); ok {
+		return c.Status(httpErr.StatusCode).JSON(httpErr)
 	}
 
 	return c.Status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).JSON(&httpErrors.HttpError{
