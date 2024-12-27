@@ -37,7 +37,7 @@ func (u *CreateUserUseCase) Execute(ctx context.Context, dto *dto.CreateUserDto)
 	err = u.validateEmailExists(dto.Email)
 
 	if err != nil {
-		return nil, httpErrors.NewConflictError("email already exists")
+		return nil, httpErrors.NewConflictError("email already exists", nil)
 	}
 
 	dto.Password = hashedPassword
