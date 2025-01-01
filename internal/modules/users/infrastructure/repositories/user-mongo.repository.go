@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/santduv/gyma-api/internal/modules/shared/app/helpers"
 	"github.com/santduv/gyma-api/internal/modules/users/domain/entities"
 	"github.com/santduv/gyma-api/internal/modules/users/domain/ports"
 	"github.com/santduv/gyma-api/pkg/utils"
@@ -70,7 +71,7 @@ func (r *UserMongoRepository) FindOne(ctx context.Context, findUser *ports.FindU
 	err := r.collection.FindOne(ctx, filter).Decode(&user)
 
 	if err != nil {
-		return nil, err
+		return nil, helpers.ManageMongoNoDocumentsError(err)
 	}
 
 	return &user, nil

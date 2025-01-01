@@ -28,7 +28,7 @@ func (h *UserHandler) CreateUser(ctx *fiber.Ctx) error {
 	result, err := h.createUserUseCase.Execute(ctx.Context(), &createUserDto)
 
 	if err != nil {
-		return err
+		return ctx.Status(err.StatusCode).JSON(err)
 	}
 
 	return ctx.Status(result.Status).JSON(result)

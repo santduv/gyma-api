@@ -3,12 +3,15 @@ package cmd
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/santduv/gyma-api/internal/database"
+	authRoutes "github.com/santduv/gyma-api/internal/modules/auth/infrastructure/routes"
 	"github.com/santduv/gyma-api/internal/modules/shared/app/constants"
 	httpErrors "github.com/santduv/gyma-api/internal/modules/shared/app/http-errors"
 	"github.com/santduv/gyma-api/internal/modules/shared/app/types"
-	UserRoutes "github.com/santduv/gyma-api/internal/modules/users/infrastructure/routes"
+	userRoutes "github.com/santduv/gyma-api/internal/modules/users/infrastructure/routes"
 )
 
 func errorHandler(c *fiber.Ctx) error {
@@ -41,8 +44,12 @@ func CreateApp() *fiber.App {
 	}))
 
 	app.Use(errorHandler)
-
+	app.Use(limiter.New())
 	app.Use(requestid.New())
+
+	app.Use(logger.New(logger.Config{
+		Format: "${pid} ${locals:requestid} ${status} - ${method} ${path}\n",
+	}))
 
 	router := app.Group("/api")
 
@@ -50,7 +57,8 @@ func CreateApp() *fiber.App {
 	database.ConnectToMongo()
 
 	// Register routes
-	UserRoutes.SetupRoutes(router.Group("/v1/users"))
+	userRoutes.SetupRoutes(router.Group("/v1/users"))
+	authRoutes.SetupRoutes(router.Group("/v1/auth"))
 
 	return app
 }
