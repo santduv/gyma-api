@@ -8,8 +8,9 @@ import (
 )
 
 type Environments struct {
-	MongoURI string `env:"MONGO_URI,required"`
-	MongoDB  string `env:"MONGO_DB,required"`
+	MongoURI  string `env:"MONGO_URI,required"`
+	MongoDB   string `env:"MONGO_DB,required"`
+	JWTSecret string `env:"JWT_SECRET,required"`
 }
 
 var Envs = getEnvs()
